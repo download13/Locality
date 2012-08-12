@@ -1,0 +1,13 @@
+name: Locality
+main: com.github.download13.locality.Locality
+version: 0.1
+commands:
+  g:
+    description: Send global message
+    usage: /g <message>
+  h:
+    description: Send help message to staff
+    usage: /h <message>
+  hg:
+    description: Ask for help from the general population
+    usage: /hg <message>
