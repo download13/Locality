@@ -5,20 +5,18 @@ import java.util.WeakHashMap;
 
 public class RateLimiter<T1> {
 	private WeakHashMap<T1, Long> db;
-	private int msPer;
 	
-	public RateLimiter(int secondsPer) {
+	public RateLimiter() {
 		this.db = new WeakHashMap<T1, Long>();
-		this.msPer = secondsPer * 1000;
 	}
 	
-	public boolean checkLimited(T1 key) {
+	public boolean checkLimited(T1 key, int seconds) {
 		if(!db.containsKey(key)) {
 			db.put(key, new Long(0));
 		}
 		
 		long now = (new Date()).getTime();
-		if(now - ((Long) db.get(key)).longValue() < msPer) {
+		if(now - ((Long) db.get(key)).longValue() < (seconds * 1000)) {
 			return true;
 		}
 		

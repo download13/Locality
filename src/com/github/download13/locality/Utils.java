@@ -7,23 +7,33 @@ import org.bukkit.Server;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.plugin.RegisteredListener;
 
 public class Utils {
 	public static void sendChatSkippingListener(Listener listener, Server server, Player from, Set<Player> receivers, String msg) {
 		sendChatSkippingListener(listener, server, from, receivers, msg, null);
 	}
-	public static void sendChatSkippingListener(Listener listener, Server server, Player from, Set<Player> receivers, String msg, String format) {
+	public static synchronized void sendChatSkippingListener(Listener listener, Server server, Player from, Set<Player> receivers, String msg, String formatPrefix) {
 		AsyncPlayerChatEvent event = new AsyncPlayerChatEvent(false, from, msg, receivers);
-		if(format != null) {
-			event.setFormat(format);
+		if(formatPrefix != null) {
+			event.setFormat(formatPrefix + event.getFormat());
 		}
-		System.out.println(event.getHandlers().getRegisteredListeners().length);
+		
+		RegisteredListener regListener = null;
 		if(listener != null) {
+			for(RegisteredListener rl : event.getHandlers().getRegisteredListeners()) {
+				if(listener.equals(rl.getListener())) {
+					regListener = rl;
+					break;
+				}
+			}
+			
 			event.getHandlers().unregister(listener);
-			System.out.println("skipped");
 		}
-		System.out.println(event.getHandlers().getRegisteredListeners().length);
 		server.getPluginManager().callEvent(event);
+		if(listener != null) {
+			event.getHandlers().register(regListener);
+		}
 		
 		if(event.isCancelled()) return;
 		
@@ -36,17 +46,18 @@ public class Utils {
 	public static void broadcastChatSkippingListener(Listener listener, Server server, Player from, String msg) {
 		broadcastChatSkippingListener(listener, server, from, msg, null);
 	}
-	public static void broadcastChatSkippingListener(Listener listener, Server server, Player from, String msg, String format) {
+	public static void broadcastChatSkippingListener(Listener listener, Server server, Player from, String msg, String formatPrefix) {
 		Set<Player> receivers = PlayerArrayToSet(server.getOnlinePlayers());
-		sendChatSkippingListener(listener, server, from, receivers, msg, format);
+		sendChatSkippingListener(listener, server, from, receivers, msg, formatPrefix);
 	}
 	
 	public static void sendChatSkippingAllListeners(Server server, Player from, Set<Player> receivers, String msg) {
 		sendChatSkippingAllListeners(server, from, receivers, msg, null);
 	}
-	public static void sendChatSkippingAllListeners(Server server, Player from, Set<Player> receivers, String msg, String format) {
-		if(format == null) {
-			format = "<%1$s> %2$s";
+	public static void sendChatSkippingAllListeners(Server server, Player from, Set<Player> receivers, String msg, String formatPrefix) {
+		String format = "<%1$s> %2$s";
+		if(formatPrefix == null) {
+			format = formatPrefix + format;
 		}
 		
 		msg = String.format(format, from.getDisplayName(), msg);
@@ -58,9 +69,9 @@ public class Utils {
 	public static void broadcastChatSkippingAllListeners(Server server, Player from, String msg) {
 		broadcastChatSkippingAllListeners(server, from, msg, null);
 	}
-	public static void broadcastChatSkippingAllListeners(Server server, Player from, String msg, String format) {
+	public static void broadcastChatSkippingAllListeners(Server server, Player from, String msg, String formatPrefix) {
 		Set<Player> receivers = PlayerArrayToSet(server.getOnlinePlayers());
-		sendChatSkippingAllListeners(server, from, receivers, msg, format);
+		sendChatSkippingAllListeners(server, from, receivers, msg, formatPrefix);
 	}
 	
 	public static Set<Player> PlayerArrayToSet(Player[] players) {
@@ -86,5 +97,11 @@ public class Utils {
 		}
 		
 		return builder.toString();
+	}
+	
+	public static String GetPlayerType(Player player) {
+		if(player.hasPermission("locality.staff")) return "staff";
+		if(player.hasPermission("locality.vip")) return "vip";
+		return "user";
 	}
 }

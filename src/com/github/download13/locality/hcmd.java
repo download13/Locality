@@ -12,7 +12,7 @@ import org.bukkit.entity.Player;
 public class hcmd implements CommandExecutor {
 	private Locality plugin;
 	
-	public hcmd(Locality plugin) {
+	public hcmd(Locality plugin, ChatColor color) {
 		this.plugin = plugin;
 	}
 	
@@ -25,12 +25,12 @@ public class hcmd implements CommandExecutor {
 		
 		Set<Player> receivers = new HashSet<Player>();
 		for(Player player : plugin.getServer().getOnlinePlayers()) {
-			if(player.hasPermission("locality.helper") || player.equals(from)) { // TODO: Check this works
+			if(player.hasPermission("locality.staff") || player.equals(from)) {
 				receivers.add(player);
 			}
 		}
 		
-		Utils.sendChatSkippingAllListeners(plugin.getServer(), from, receivers, msg, ChatColor.DARK_PURPLE + "[HELP]<%1$s> %2$s");
+		Utils.sendChatSkippingListener(plugin, plugin.getServer(), from, receivers, msg, ChatColor.DARK_PURPLE + "[HELP]");
 		
 		return true;
 	}

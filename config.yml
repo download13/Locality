@@ -1,3 +1,23 @@
+# Permissions:
+# locality.staff, Can see help messages from users
+# locality.vip, Can have a different rate limit for global and help-global
+
 localRadius: 100
-globalTimeout: 10
-globalHelpTimeout: 10
+
+user:
+  globalTimeout: 10
+  helpGlobalTimeout: 10
+  
+vip:
+  globalTimeout: 5
+  helpGlobalTimeout: 5
+  
+staff:
+  globalTimeout: 0
+  helpGlobalTimeout: 0
+  
+color:
+  local: white
+  global: yellow
+  help: dark_purple
+  helpGlobal: aqua

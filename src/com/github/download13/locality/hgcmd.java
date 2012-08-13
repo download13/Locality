@@ -1,5 +1,7 @@
 package com.github.download13.locality;
 
+import java.util.Map;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -8,13 +10,13 @@ import org.bukkit.entity.Player;
 
 public class hgcmd implements CommandExecutor {
 	private Locality plugin;
-	private int helpGlobalTimeout;
+	private Map<String, Integer> timeouts;
 	private RateLimiter<Player> rateLimiter;
 	
-	public hgcmd(Locality plugin, int helpGlobalTimeout) {
+	public hgcmd(Locality plugin, ChatColor color, Map<String, Integer> timeouts) {
 		this.plugin = plugin;
-		this.helpGlobalTimeout = helpGlobalTimeout;
-		this.rateLimiter = new RateLimiter<Player>(helpGlobalTimeout);
+		this.timeouts = timeouts;
+		this.rateLimiter = new RateLimiter<Player>();
 	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) { // Whenever a user uses a command
@@ -24,12 +26,15 @@ public class hgcmd implements CommandExecutor {
 		
 		String msg = Utils.JoinStrings(args, " ");
 		
-		if(rateLimiter.checkLimited(from)) {
-			from.sendMessage(ChatColor.RED + "You may only send one global help message every " + helpGlobalTimeout + " seconds");
+		String userType = Utils.GetPlayerType(from);
+		int timeout = timeouts.get(userType);
+		
+		if(rateLimiter.checkLimited(from, timeout)) {
+			from.sendMessage(ChatColor.RED + "You may only send one global help message every " + timeout + " seconds");
 			return true;
 		}
 		
-		Utils.broadcastChatSkippingListener(plugin, plugin.getServer(), from, msg, ChatColor.DARK_PURPLE + "[HELP]<%1$s> %2$s");
+		Utils.broadcastChatSkippingListener(plugin, plugin.getServer(), from, msg, ChatColor.AQUA + "[HELP]");
 		
 		return true;
 	}
