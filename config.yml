@@ -1,7 +1,3 @@
-# Permissions:
-# locality.staff, Can see help messages from users
-# locality.vip, Can have a different rate limit for global and help-global
-
 localRadius: 100
 
 user:
@@ -21,3 +17,4 @@ color:
   global: yellow
   help: dark_purple
   helpGlobal: aqua
+  staff: red

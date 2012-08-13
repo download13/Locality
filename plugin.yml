@@ -1,6 +1,6 @@
 name: Locality
 main: com.github.download13.locality.Locality
-version: 0.1
+version: 0.2
 commands:
   g:
     description: Send global message
@@ -11,3 +11,15 @@ commands:
   hg:
     description: Ask for help from the general population
     usage: /hg <message>
+  s:
+    description: Talk to other staff members
+    usage: /s <message>
+    permission: locality.staff
+    permission-message: You must be a staff member to use Staff chat
+permissions:
+  locality.vip:
+    description: Can have lower timeouts on Global and Help-Global
+    default: false
+  locality.staff:
+    description: Can see help messages, can use and see Staff chat
+    default: op

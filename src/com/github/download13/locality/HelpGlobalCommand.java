@@ -8,21 +8,23 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class hgcmd implements CommandExecutor {
+public class HelpGlobalCommand implements CommandExecutor {
 	private Locality plugin;
 	private Map<String, Integer> timeouts;
 	private RateLimiter<Player> rateLimiter;
+	private ChatColor chatColor;
 	
-	public hgcmd(Locality plugin, ChatColor color, Map<String, Integer> timeouts) {
+	public HelpGlobalCommand(Locality plugin, ChatColor color, Map<String, Integer> timeouts) {
 		this.plugin = plugin;
 		this.timeouts = timeouts;
+		this.chatColor = color;
 		this.rateLimiter = new RateLimiter<Player>();
 	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) { // Whenever a user uses a command
 		if(args.length == 0) return true;
-		if(!(sender instanceof Player)) return true;
-		Player from = (Player)sender; // Turn the CommandSender into a Player
+		if(!(sender instanceof Player)) return false;
+		Player from = (Player) sender;
 		
 		String msg = Utils.JoinStrings(args, " ");
 		
@@ -34,7 +36,7 @@ public class hgcmd implements CommandExecutor {
 			return true;
 		}
 		
-		Utils.broadcastChatSkippingListener(plugin, plugin.getServer(), from, msg, ChatColor.AQUA + "[HELP]");
+		Utils.broadcastChatSkippingListener(plugin, plugin.getServer(), from, msg, chatColor + "[HELP]");
 		
 		return true;
 	}

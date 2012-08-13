@@ -28,6 +28,7 @@ public class Locality extends JavaPlugin implements Listener {
 			ChatColor globalColor = ChatColor.YELLOW;
 			ChatColor helpColor = ChatColor.DARK_PURPLE;
 			ChatColor helpGlobalColor = ChatColor.AQUA;
+			ChatColor staffColor = ChatColor.RED;
 			localColor = ChatColor.WHITE;
 			
 			try {
@@ -45,6 +46,7 @@ public class Locality extends JavaPlugin implements Listener {
 				globalColor = ChatColor.valueOf(getConfig().getString("color.global").trim().toUpperCase());
 				helpColor = ChatColor.valueOf(getConfig().getString("color.help").trim().toUpperCase());
 				helpGlobalColor = ChatColor.valueOf(getConfig().getString("color.helpGlobal").trim().toUpperCase());
+				staffColor = ChatColor.valueOf(getConfig().getString("color.staff").trim().toUpperCase());
 			} catch(NullPointerException e) {
 				getLogger().warning("Config file failed to load all options, plugin may crash if it doesn't have the right options");
 				getLogger().warning("Fix the config.yml file or delete it and a fresh valid one will appear");
@@ -53,13 +55,10 @@ public class Locality extends JavaPlugin implements Listener {
 				getLogger().warning("Fix the config.yml file or delete it and a fresh valid one will appear");
 			}
 			
-			getCommand("g").setExecutor(new gcmd(this, globalColor, globalTimeouts));
-			getCommand("h").setExecutor(new hcmd(this, helpColor));
-			getCommand("hg").setExecutor(new hgcmd(this, helpGlobalColor, helpGlobalTimeouts));
-		}
-		// Unload all the events
-		public void onDisable() {
-			
+			getCommand("g").setExecutor(new GlobalCommand(this, globalColor, globalTimeouts));
+			getCommand("h").setExecutor(new HelpCommand(this, helpColor));
+			getCommand("hg").setExecutor(new HelpGlobalCommand(this, helpGlobalColor, helpGlobalTimeouts));
+			getCommand("s").setExecutor(new StaffCommand(this, staffColor));
 		}
 		
 		@EventHandler

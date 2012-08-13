@@ -9,17 +9,19 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class hcmd implements CommandExecutor {
+public class StaffCommand implements CommandExecutor {
 	private Locality plugin;
+	private ChatColor chatColor;
 	
-	public hcmd(Locality plugin, ChatColor color) {
+	public StaffCommand(Locality plugin, ChatColor color) {
 		this.plugin = plugin;
+		this.chatColor = color;
 	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) { // Whenever a user uses a command
 		if(args.length == 0) return true;
-		if(!(sender instanceof Player)) return true;
-		Player from = (Player)sender; // Turn the CommandSender into a Player
+		if(!(sender instanceof Player)) return false;
+		Player from = (Player) sender;
 		
 		String msg = Utils.JoinStrings(args, " ");
 		
@@ -30,7 +32,7 @@ public class hcmd implements CommandExecutor {
 			}
 		}
 		
-		Utils.sendChatSkippingListener(plugin, plugin.getServer(), from, receivers, msg, ChatColor.DARK_PURPLE + "[HELP]");
+		Utils.sendChatSkippingListener(plugin, plugin.getServer(), from, receivers, msg, chatColor + "[STAFF]");
 		
 		return true;
 	}
