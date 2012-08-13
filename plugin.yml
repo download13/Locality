@@ -1,6 +1,6 @@
 name: Locality
 main: com.github.download13.locality.Locality
-version: 0.2
+version: 0.4
 
 commands:
   g:
