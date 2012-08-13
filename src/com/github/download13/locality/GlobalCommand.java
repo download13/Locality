@@ -36,7 +36,8 @@ public class GlobalCommand implements CommandExecutor {
 			return true;
 		}
 		
-		Utils.broadcastChatSkippingListener(plugin, plugin.getServer(), from, msg, chatColor + "[G]");
+		String format = Utils.FormatString(chatColor, "[G]", Utils.GetPrefixAndSuffix(plugin.getServer(), from));
+		Utils.broadcastChatSkippingListener(plugin, plugin.getServer(), from, msg, format);
 		
 		return true;
 	}

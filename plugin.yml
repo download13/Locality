@@ -1,25 +1,57 @@
 name: Locality
 main: com.github.download13.locality.Locality
 version: 0.2
+
 commands:
   g:
     description: Send global message
     usage: /g <message>
+    permission: locality.global
+    permission-message: You do not have permission to use Global chat
+    
   h:
     description: Send help message to staff
     usage: /h <message>
-  hg:
+    permission: locality.help
+    permission-message: You do not have permission to use Help chat
+    
+  gh:
     description: Ask for help from the general population
-    usage: /hg <message>
+    usage: /gh <message>
+    permission: locality.helpGlobal
+    permission-message: You do not have permission to use Help Global chat
+    
   s:
     description: Talk to other staff members
     usage: /s <message>
     permission: locality.staff
     permission-message: You must be a staff member to use Staff chat
+    
+  locality:
+    description: Locality config options
+    permission: locality.staff
+    
 permissions:
+  locality.local:
+    description: Can use Local chat
+    default: true
+    
+  locality.global:
+    description: Can use Global chat
+    default: true
+    
+  locality.help:
+    description: Can use the Help channel to talk to staff
+    default: true
+    
+  locality.helpGlobal:
+    description: Can use Help Global
+    default: true
+    
   locality.vip:
-    description: Can have lower timeouts on Global and Help-Global
+    description: Can have lower timeouts on Local, Global and Help-Global
     default: false
+    
   locality.staff:
     description: Can see help messages, can use and see Staff chat
     default: op

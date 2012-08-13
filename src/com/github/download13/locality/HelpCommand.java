@@ -32,7 +32,8 @@ public class HelpCommand implements CommandExecutor {
 			}
 		}
 		
-		Utils.sendChatSkippingListener(plugin, plugin.getServer(), from, receivers, msg, chatColor + "[HELP]");
+		String format = Utils.FormatString(chatColor, "[HELP]", Utils.GetPrefixAndSuffix(plugin.getServer(), from));
+		Utils.sendChatSkippingListener(plugin, plugin.getServer(), from, receivers, msg, format);
 		
 		return true;
 	}

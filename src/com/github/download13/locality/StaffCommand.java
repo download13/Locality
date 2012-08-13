@@ -18,7 +18,7 @@ public class StaffCommand implements CommandExecutor {
 		this.chatColor = color;
 	}
 	
-	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) { // Whenever a user uses a command
+	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if(args.length == 0) return true;
 		if(!(sender instanceof Player)) return false;
 		Player from = (Player) sender;
@@ -32,7 +32,8 @@ public class StaffCommand implements CommandExecutor {
 			}
 		}
 		
-		Utils.sendChatSkippingListener(plugin, plugin.getServer(), from, receivers, msg, chatColor + "[STAFF]");
+		String format = Utils.FormatString(chatColor, "[STAFF]", Utils.GetPrefixAndSuffix(plugin.getServer(), from));
+		Utils.sendChatSkippingListener(plugin, plugin.getServer(), from, receivers, msg, format);
 		
 		return true;
 	}

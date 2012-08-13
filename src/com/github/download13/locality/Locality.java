@@ -5,6 +5,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -12,32 +16,52 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 
-public class Locality extends JavaPlugin implements Listener {
+public class Locality extends JavaPlugin implements Listener, CommandExecutor {
 		private int localChatDistance;
-		private ChatColor localColor;
+		private RateLimiter<Player> localRateLimiter = new RateLimiter<Player>();
+		
+		private ChatColor localColor = ChatColor.WHITE;
+		private ChatColor globalColor = ChatColor.YELLOW;
+		private ChatColor helpColor = ChatColor.DARK_PURPLE;
+		private ChatColor helpGlobalColor = ChatColor.AQUA;
+		private ChatColor staffColor = ChatColor.RED;
+		
+		private Map<String, Integer> localTimeouts = new HashMap<String, Integer>();
+		private Map<String, Integer> globalTimeouts = new HashMap<String, Integer>();
+		private Map<String, Integer> helpGlobalTimeouts = new HashMap<String, Integer>();
 		
 		// Start here
 		public void onEnable() {
 			saveDefaultConfig();
-			localChatDistance = getConfig().getInt("localRadius");
+			loadConfiguration();
 			
 			getServer().getPluginManager().registerEvents(this, this); // Register ourselves as an event handler
 			
-			Map<String, Integer> globalTimeouts = null;
-			Map<String, Integer> helpGlobalTimeouts = null;
-			ChatColor globalColor = ChatColor.YELLOW;
-			ChatColor helpColor = ChatColor.DARK_PURPLE;
-			ChatColor helpGlobalColor = ChatColor.AQUA;
-			ChatColor staffColor = ChatColor.RED;
-			localColor = ChatColor.WHITE;
+			getCommand("g").setExecutor(new GlobalCommand(this, globalColor, globalTimeouts));
+			getCommand("h").setExecutor(new HelpCommand(this, helpColor));
+			getCommand("gh").setExecutor(new HelpGlobalCommand(this, helpGlobalColor, helpGlobalTimeouts));
+			getCommand("s").setExecutor(new StaffCommand(this, staffColor));
+			
+			getCommand("locality").setExecutor(this);
+		}
+		
+		public void loadConfiguration() {
+			reloadConfig();
 			
 			try {
-				globalTimeouts = new HashMap<String, Integer>();
+				localChatDistance = getConfig().getInt("localRadius");
+				
+				localTimeouts.clear();
+				localTimeouts.put("staff", getConfig().getInt("staff.localTimeout"));
+				localTimeouts.put("vip", getConfig().getInt("vip.localTimeout"));
+				localTimeouts.put("user", getConfig().getInt("user.localTimeout"));
+				
+				globalTimeouts.clear();
 				globalTimeouts.put("staff", getConfig().getInt("staff.globalTimeout"));
 				globalTimeouts.put("vip", getConfig().getInt("vip.globalTimeout"));
 				globalTimeouts.put("user", getConfig().getInt("user.globalTimeout"));
 				
-				helpGlobalTimeouts = new HashMap<String, Integer>();
+				helpGlobalTimeouts.clear();
 				helpGlobalTimeouts.put("staff", getConfig().getInt("staff.helpGlobalTimeout"));
 				helpGlobalTimeouts.put("vip", getConfig().getInt("vip.helpGlobalTimeout"));
 				helpGlobalTimeouts.put("user", getConfig().getInt("user.helpGlobalTimeout"));
@@ -54,21 +78,47 @@ public class Locality extends JavaPlugin implements Listener {
 				getLogger().warning("Config file failed to load all options, plugin may crash if it doesn't have the right options");
 				getLogger().warning("Fix the config.yml file or delete it and a fresh valid one will appear");
 			}
+		}
+		
+		public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+			if(!(sender instanceof ConsoleCommandSender)) {
+				sender.sendMessage(ChatColor.RED + "This command can only be used from the server console");
+				return true;
+			}
 			
-			getCommand("g").setExecutor(new GlobalCommand(this, globalColor, globalTimeouts));
-			getCommand("h").setExecutor(new HelpCommand(this, helpColor));
-			getCommand("hg").setExecutor(new HelpGlobalCommand(this, helpGlobalColor, helpGlobalTimeouts));
-			getCommand("s").setExecutor(new StaffCommand(this, staffColor));
+			if(args.length == 0) return true;
+			
+			if(args[0].equals("reload")) {
+				loadConfiguration();
+				sender.sendMessage(ChatColor.GREEN + "Locality configuration loaded");
+			}
+			
+			return true;
 		}
 		
 		@EventHandler
-		public void onChatMessage(AsyncPlayerChatEvent e) { // Whenever a user sends a chat message
+		public void onChatMessage(AsyncPlayerChatEvent e) {
 			if(e.isCancelled()) return;
 			
 			Player from = e.getPlayer();
 			if(from == null) return;
 			
-			e.setFormat(localColor + "[L]" + e.getFormat());
+			if(!from.hasPermission("locality.local")) {
+				from.sendMessage(ChatColor.RED + "You do not have permission to use Local chat");
+				e.setCancelled(true);
+				return;
+			}
+			
+			String userType = Utils.GetPlayerType(from);
+			int timeout = localTimeouts.get(userType);
+			
+			if(localRateLimiter.checkLimited(from, timeout)) {
+				from.sendMessage(ChatColor.RED + "You may only send one local message every " + timeout + " seconds");
+				e.setCancelled(true);
+				return;
+			}
+			
+			e.setFormat(Utils.FormatString(localColor, "[L]", Utils.GetPrefixAndSuffix(getServer(), from)));
 			
 			Set<Player> receivers = e.getRecipients();
 			synchronized(receivers) { // Make sure we are the only ones modifying this right now

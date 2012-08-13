@@ -1,14 +1,17 @@
 localRadius: 100
 
 user:
+  localTimeout: 10
   globalTimeout: 10
   helpGlobalTimeout: 10
   
 vip:
+  localTimeout: 5
   globalTimeout: 5
   helpGlobalTimeout: 5
   
 staff:
+  localTimeout: 0
   globalTimeout: 0
   helpGlobalTimeout: 0
   

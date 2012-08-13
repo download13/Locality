@@ -36,7 +36,8 @@ public class HelpGlobalCommand implements CommandExecutor {
 			return true;
 		}
 		
-		Utils.broadcastChatSkippingListener(plugin, plugin.getServer(), from, msg, chatColor + "[HELP]");
+		String format = Utils.FormatString(chatColor, "[HELP]", Utils.GetPrefixAndSuffix(plugin.getServer(), from));
+		Utils.broadcastChatSkippingListener(plugin, plugin.getServer(), from, msg, format);
 		
 		return true;
 	}
